@@ -1,18 +1,22 @@
 package com.bijanghanei.bex.bot;
 
+import com.bijanghanei.bex.client.RegistrationClient;
 import com.bijanghanei.bex.config.BotConfig;
 import com.bijanghanei.bex.entity.Price;
+import com.bijanghanei.bex.external.BotUser;
 import com.bijanghanei.bex.service.BexService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -23,10 +27,12 @@ public class BexBot extends TelegramLongPollingBot {
 
     private final BexService bexService;
     private final BotConfig botConfig;
+    private final RegistrationClient registrationClient;
 
-    public BexBot(BexService bexService, BotConfig botConfig) {
+    public BexBot(BexService bexService, BotConfig botConfig, RegistrationClient registrationClient) {
         this.bexService = bexService;
         this.botConfig = botConfig;
+        this.registrationClient = registrationClient;
     }
 
     @Override
@@ -51,7 +57,9 @@ public class BexBot extends TelegramLongPollingBot {
                 String text = message.getText();
 
                 if (text.equals("/start")){
+                    registerUser(message);
                     sendMessageAndKeyboard("Hi! Welcome to BEX! \n You can choose the currency you want to get the price for it.",message.getChatId());
+
                 }else{
                     List<String> symbols = bexService.getWatchList().getSymbols();
                     if (symbols.contains(text.toLowerCase())) {
@@ -66,6 +74,24 @@ public class BexBot extends TelegramLongPollingBot {
     @Override
     public void onUpdatesReceived(List<Update> updates) {
         super.onUpdatesReceived(updates);
+    }
+
+    private void registerUser(Message msg){
+        BotUser user = registrationClient.getUserById(msg.getChatId());
+        if (user == null){
+            System.out.println("we have new user");
+            Long chatId = msg.getChatId();
+            Chat chat = msg.getChat();
+
+            BotUser newUser = new BotUser();
+            newUser.setChatId(chatId);
+            newUser.setUsername(chat.getUserName());
+            newUser.setFirstName(chat.getFirstName());
+            newUser.setLastName(chat.getLastName());
+            newUser.setRegisteredAt(new Timestamp(System.currentTimeMillis()));
+
+            registrationClient.addUser(newUser);
+        }
     }
     private String createPriceString(String symbol){
         Price price = bexService.getPrice(symbol.toLowerCase());

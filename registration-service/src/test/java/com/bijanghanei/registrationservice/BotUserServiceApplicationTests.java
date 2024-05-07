@@ -1,10 +1,10 @@
-package com.bijanghanei.userservice;
+package com.bijanghanei.registrationservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class UserServiceApplicationTests {
+class BotUserServiceApplicationTests {
 
 	@Test
 	void contextLoads() {

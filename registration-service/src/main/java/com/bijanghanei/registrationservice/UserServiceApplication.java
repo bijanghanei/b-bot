@@ -1,4 +1,4 @@
-package com.bijanghanei.userservice;
+package com.bijanghanei.registrationservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

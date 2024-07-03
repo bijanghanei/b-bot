@@ -1,9 +1,6 @@
 package com.bijanghanei.bex.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 
@@ -11,6 +8,7 @@ import java.util.ArrayList;
 @NoArgsConstructor
 @Setter
 @Getter
+@Builder
 public class WatchList {
     private boolean success;
     private ArrayList<String> symbols;
